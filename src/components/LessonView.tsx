@@ -19,6 +19,14 @@ export const LessonView: React.FC<LessonViewProps> = ({ lesson, onClose }) => {
   const [aiHint, setAiHint] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const currentStep = lesson.content?.steps[currentStepIndex];
 
@@ -129,8 +137,8 @@ export const LessonView: React.FC<LessonViewProps> = ({ lesson, onClose }) => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col lg:flex-row items-center justify-center p-8 gap-12 overflow-y-auto">
-        <div className="w-full max-w-[400px] aspect-square shadow-2xl rounded-lg overflow-hidden border-4 border-gray-200">
+      <div className="flex-1 flex flex-col lg:flex-row items-center justify-center p-4 md:p-8 gap-6 md:gap-12 overflow-y-auto">
+        <div className="w-full max-w-[320px] sm:max-w-[400px] aspect-square shadow-2xl rounded-lg overflow-hidden border-4 border-gray-200">
           {React.createElement(Chessboard as any, {
             position: game.fen(),
             onPieceDrop: onDrop,
@@ -138,8 +146,8 @@ export const LessonView: React.FC<LessonViewProps> = ({ lesson, onClose }) => {
           })}
         </div>
 
-        <div className="flex-1 max-w-md flex flex-col gap-6">
-          <h2 className="text-3xl font-bold text-[#4b4b4b] leading-tight">
+        <div className="flex-1 w-full max-w-md flex flex-col gap-4 md:gap-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#4b4b4b] leading-tight text-center lg:text-left">
             {currentStep?.text}
           </h2>
 
@@ -193,27 +201,26 @@ export const LessonView: React.FC<LessonViewProps> = ({ lesson, onClose }) => {
       </div>
 
       {/* Footer */}
-      <div className={`p-6 border-t-2 transition-colors duration-300 ${feedback === 'correct' ? 'bg-[#d7ffb8] border-[#b8f28b]' : feedback === 'incorrect' ? 'bg-[#ffdfe0] border-[#ffc1c3]' : 'bg-white border-gray-100'}`}>
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
+      <div className={`p-4 md:p-6 border-t-2 transition-colors duration-300 ${feedback === 'correct' ? 'bg-[#d7ffb8] border-[#b8f28b]' : feedback === 'incorrect' ? 'bg-[#ffdfe0] border-[#ffc1c3]' : 'bg-white border-gray-100'}`}>
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4 w-full sm:w-auto">
             {feedback === 'correct' && (
               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-duo-green">
-                  <CheckCircle2 size={32} />
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center text-duo-green shrink-0">
+                  <CheckCircle2 size={isMobile ? 24 : 32} />
                 </div>
                 <div>
-                  <h4 className="text-2xl font-bold text-duo-green-dark">Excellent!</h4>
+                  <h4 className="text-xl md:text-2xl font-bold text-duo-green-dark">Excellent!</h4>
                 </div>
               </motion.div>
             )}
             {feedback === 'incorrect' && (
               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-duo-red">
-                  <AlertCircle size={32} />
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center text-duo-red shrink-0">
+                  <AlertCircle size={isMobile ? 24 : 32} />
                 </div>
                 <div>
-                  <h4 className="text-2xl font-bold text-[#ea2b2b]">Not quite...</h4>
-                  <p className="text-[#ea2b2b]">Try another move!</p>
+                  <h4 className="text-xl md:text-2xl font-bold text-[#ea2b2b]">Not quite...</h4>
                 </div>
               </motion.div>
             )}
@@ -223,7 +230,7 @@ export const LessonView: React.FC<LessonViewProps> = ({ lesson, onClose }) => {
             onClick={handleNext}
             disabled={(currentStep?.type === 'interaction' || currentStep?.type === 'multiple-choice') && feedback !== 'correct'}
             className={`
-              px-10 py-3 rounded-xl font-display font-bold text-lg uppercase tracking-wider transition-all
+              w-full sm:w-auto px-10 py-3 rounded-xl font-display font-bold text-lg uppercase tracking-wider transition-all
               ${feedback === 'correct' ? 'bg-duo-green text-white hover:bg-duo-green-dark' : feedback === 'incorrect' ? 'bg-duo-red text-white hover:bg-[#ea2b2b]' : 'bg-duo-green text-white hover:bg-duo-green-dark'}
               disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed
             `}

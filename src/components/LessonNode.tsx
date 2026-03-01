@@ -21,12 +21,21 @@ interface LessonNodeProps {
 export const LessonNode: React.FC<LessonNodeProps> = ({ lesson, index, onSelect }) => {
   const Icon = iconMap[lesson.icon] || Star;
   
-  // Zig-zag pattern
-  const offset = Math.sin(index * 0.8) * 60;
+  // Zig-zag pattern - reduced for mobile
+  const [isMobile, setIsMobile] = React.useState(false);
+  
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const offset = Math.sin(index * 0.8) * (isMobile ? 30 : 60);
 
   return (
     <div 
-      className="lesson-node my-8"
+      className="lesson-node my-6 md:my-8"
       style={{ transform: `translateX(${offset}px)` }}
     >
       <motion.button

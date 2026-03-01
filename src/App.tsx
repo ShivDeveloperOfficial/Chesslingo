@@ -51,10 +51,10 @@ export default function App() {
       <main className="flex-1 md:ml-20 lg:ml-64 relative pb-24 md:pb-0">
         <UserStats progress={progress} />
         
-        <div className="max-w-2xl mx-auto py-12 px-6 flex flex-col items-center">
-          <div className="w-full mb-12 text-center">
-            <h2 className="text-4xl font-bold text-[#4b4b4b] mb-2">Unit 1: The Basics</h2>
-            <p className="text-gray-500 text-lg font-medium italic">Learn the fundamentals of the game of kings.</p>
+        <div className="max-w-2xl mx-auto py-8 md:py-12 px-4 sm:px-6 flex flex-col items-center">
+          <div className="w-full mb-8 md:mb-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#4b4b4b] mb-2">Unit 1: The Basics</h2>
+            <p className="text-gray-500 text-base md:text-lg font-medium italic px-4">Learn the fundamentals of the game of kings.</p>
           </div>
 
           <div className="flex flex-col items-center gap-4 w-full">
