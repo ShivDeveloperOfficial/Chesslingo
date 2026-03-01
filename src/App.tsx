@@ -3,12 +3,18 @@ import { Sidebar } from './components/Sidebar';
 import { UserStats } from './components/UserStats';
 import { LessonNode } from './components/LessonNode';
 import { LessonView } from './components/LessonView';
+import { WelcomeScreen } from './components/WelcomeScreen';
+import { AuthScreen } from './components/AuthScreen';
 import { LESSONS } from './data/lessons';
 import { Lesson, UserProgress } from './types';
 import { motion, AnimatePresence } from 'motion/react';
 import { Trophy, Home, BookOpen, ShoppingBag, User, Settings } from 'lucide-react';
 
+type AppState = 'welcome' | 'auth' | 'main';
+
 export default function App() {
+  const [appState, setAppState] = useState<AppState>('welcome');
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
   const [lessons, setLessons] = useState<Lesson[]>(LESSONS);
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [progress, setProgress] = useState<UserProgress>({
@@ -40,6 +46,31 @@ export default function App() {
     }
     setActiveLesson(null);
   };
+
+  if (appState === 'welcome') {
+    return (
+      <WelcomeScreen 
+        onGetStarted={() => {
+          setAuthMode('signup');
+          setAppState('auth');
+        }}
+        onLogin={() => {
+          setAuthMode('login');
+          setAppState('auth');
+        }}
+      />
+    );
+  }
+
+  if (appState === 'auth') {
+    return (
+      <AuthScreen 
+        mode={authMode}
+        onBack={() => setAppState('welcome')}
+        onSuccess={() => setAppState('main')}
+      />
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-white">
