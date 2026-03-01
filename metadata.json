@@ -1,0 +1,5 @@
+{
+  "name": "ChessLingo",
+  "description": "A gamified chess learning platform inspired by Duolingo, featuring interactive lessons, progress tracking, and AI-powered guidance.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fredoka", sans-serif;
+  
+  --color-duo-green: #58cc02;
+  --color-duo-green-dark: #46a302;
+  --color-duo-blue: #1cb0f6;
+  --color-duo-blue-dark: #1899d6;
+  --color-duo-yellow: #ffc800;
+  --color-duo-orange: #ff9600;
+  --color-duo-red: #ff4b4b;
+  --color-duo-purple: #ce82ff;
+}
+
+@layer base {
+  body {
+    @apply font-sans text-[#4b4b4b] bg-white;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+.lesson-node {
+  @apply relative flex flex-col items-center justify-center;
+}
+
+.lesson-button {
+  @apply w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 active:translate-y-1;
+  box-shadow: 0 8px 0 rgba(0,0,0,0.1);
+}
+
+.lesson-button:active {
+  box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+}
