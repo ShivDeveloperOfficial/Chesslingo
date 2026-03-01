@@ -59,7 +59,25 @@ export const LESSONS: Lesson[] = [
     type: 'tutorial',
     icon: 'Zap',
     color: 'duo-green',
-    status: 'locked'
+    status: 'locked',
+    content: {
+      steps: [
+        {
+          id: 's1',
+          type: 'explanation',
+          text: 'The Knight moves in an "L" shape: two squares in one direction and then one square perpendicular.',
+          fen: '4k3/8/8/8/8/2N5/8/4K3 w - - 0 1'
+        },
+        {
+          id: 's2',
+          type: 'multiple-choice',
+          text: 'Can the Knight jump over other pieces?',
+          options: ['Yes, it is the only piece that can jump!', 'No, it must have a clear path.', 'Only if it is a friendly piece.'],
+          correctOption: 0,
+          fen: '4k3/8/8/8/3p4/2N5/8/4K3 w - - 0 1'
+        }
+      ]
+    }
   },
   {
     id: 'intro-4',
@@ -68,7 +86,24 @@ export const LESSONS: Lesson[] = [
     type: 'puzzle',
     icon: 'Trophy',
     color: 'duo-yellow',
-    status: 'locked'
+    status: 'locked',
+    content: {
+      steps: [
+        {
+          id: 's1',
+          type: 'explanation',
+          text: 'Checkmate happens when the King is under attack and has no way to escape.',
+          fen: 'R3k3/R7/8/8/8/8/8/4K3 w - - 0 1'
+        },
+        {
+          id: 's2',
+          type: 'interaction',
+          text: 'Move the Rook to a8 to deliver checkmate!',
+          fen: '4k3/R7/R7/8/8/8/8/4K3 w - - 0 1',
+          targetMove: 'a8'
+        }
+      ]
+    }
   },
   {
     id: 'mid-1',

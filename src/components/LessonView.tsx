@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Chess } from 'chess.js';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, CheckCircle2, AlertCircle, ArrowRight, Lightbulb } from 'lucide-react';
+import { X, CheckCircle2, AlertCircle, ArrowRight, Lightbulb, Check } from 'lucide-react';
 import { Lesson, LessonStep } from '../types';
 import { GoogleGenAI } from '@google/genai';
+import confetti from 'canvas-confetti';
 
 interface LessonViewProps {
   lesson: Lesson;
@@ -17,6 +18,7 @@ export const LessonView: React.FC<LessonViewProps> = ({ lesson, onClose }) => {
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null);
   const [aiHint, setAiHint] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
 
   const currentStep = lesson.content?.steps[currentStepIndex];
 
@@ -26,10 +28,12 @@ export const LessonView: React.FC<LessonViewProps> = ({ lesson, onClose }) => {
     }
     setFeedback(null);
     setAiHint(null);
+    setSelectedOption(null);
   }, [currentStepIndex]);
 
   const onDrop = (sourceSquare: string, targetSquare: string) => {
     if (currentStep?.type !== 'interaction') return false;
+    if (feedback === 'correct') return false;
 
     try {
       const move = game.move({
@@ -46,7 +50,6 @@ export const LessonView: React.FC<LessonViewProps> = ({ lesson, onClose }) => {
         setFeedback('correct');
       } else {
         setFeedback('incorrect');
-        // Reset after a delay
         setTimeout(() => {
           setGame(new Chess(currentStep.fen!));
           setFeedback(null);
@@ -58,11 +61,28 @@ export const LessonView: React.FC<LessonViewProps> = ({ lesson, onClose }) => {
     }
   };
 
+  const handleOptionSelect = (index: number) => {
+    if (feedback === 'correct') return;
+    setSelectedOption(index);
+    if (index === currentStep?.correctOption) {
+      setFeedback('correct');
+    } else {
+      setFeedback('incorrect');
+      setTimeout(() => setFeedback(null), 1000);
+    }
+  };
+
   const handleNext = () => {
     if (currentStepIndex < (lesson.content?.steps.length || 0) - 1) {
       setCurrentStepIndex(prev => prev + 1);
     } else {
-      onClose(true);
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#58cc02', '#1cb0f6', '#ffc800', '#ff4b4b', '#ce82ff']
+      });
+      setTimeout(() => onClose(true), 1500);
     }
   };
 
@@ -91,11 +111,12 @@ export const LessonView: React.FC<LessonViewProps> = ({ lesson, onClose }) => {
     <motion.div 
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 1.1 }}
       className="fixed inset-0 bg-white z-[100] flex flex-col"
     >
       {/* Header */}
       <div className="p-4 flex items-center gap-4 border-b-2 border-gray-100">
-        <button onClick={() => onClose(false)} className="text-gray-400 hover:text-gray-600">
+        <button onClick={() => onClose(false)} className="text-gray-400 hover:text-gray-600 p-2">
           <X size={32} />
         </button>
         <div className="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
@@ -121,6 +142,28 @@ export const LessonView: React.FC<LessonViewProps> = ({ lesson, onClose }) => {
           <h2 className="text-3xl font-bold text-[#4b4b4b] leading-tight">
             {currentStep?.text}
           </h2>
+
+          {currentStep?.type === 'multiple-choice' && (
+            <div className="grid gap-3">
+              {currentStep.options?.map((option, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleOptionSelect(idx)}
+                  className={`
+                    w-full p-4 rounded-2xl border-2 text-left font-bold transition-all
+                    ${selectedOption === idx 
+                      ? (idx === currentStep.correctOption ? 'bg-[#d7ffb8] border-[#b8f28b] text-duo-green-dark' : 'bg-[#ffdfe0] border-[#ffc1c3] text-duo-red')
+                      : 'border-gray-200 hover:bg-gray-50 text-[#4b4b4b]'}
+                  `}
+                >
+                  <span className="inline-block w-8 h-8 rounded-lg border-2 border-gray-200 mr-3 text-center leading-7 text-sm">
+                    {idx + 1}
+                  </span>
+                  {option}
+                </button>
+              ))}
+            </div>
+          )}
 
           <AnimatePresence mode="wait">
             {aiHint && (
@@ -150,21 +193,21 @@ export const LessonView: React.FC<LessonViewProps> = ({ lesson, onClose }) => {
       </div>
 
       {/* Footer */}
-      <div className={`p-6 border-t-2 ${feedback === 'correct' ? 'bg-[#d7ffb8] border-[#b8f28b]' : feedback === 'incorrect' ? 'bg-[#ffdfe0] border-[#ffc1c3]' : 'bg-white border-gray-100'}`}>
+      <div className={`p-6 border-t-2 transition-colors duration-300 ${feedback === 'correct' ? 'bg-[#d7ffb8] border-[#b8f28b]' : feedback === 'incorrect' ? 'bg-[#ffdfe0] border-[#ffc1c3]' : 'bg-white border-gray-100'}`}>
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             {feedback === 'correct' && (
-              <>
+              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-duo-green">
                   <CheckCircle2 size={32} />
                 </div>
                 <div>
                   <h4 className="text-2xl font-bold text-duo-green-dark">Excellent!</h4>
                 </div>
-              </>
+              </motion.div>
             )}
             {feedback === 'incorrect' && (
-              <>
+              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-duo-red">
                   <AlertCircle size={32} />
                 </div>
@@ -172,13 +215,13 @@ export const LessonView: React.FC<LessonViewProps> = ({ lesson, onClose }) => {
                   <h4 className="text-2xl font-bold text-[#ea2b2b]">Not quite...</h4>
                   <p className="text-[#ea2b2b]">Try another move!</p>
                 </div>
-              </>
+              </motion.div>
             )}
           </div>
 
           <button 
             onClick={handleNext}
-            disabled={currentStep?.type === 'interaction' && feedback !== 'correct'}
+            disabled={(currentStep?.type === 'interaction' || currentStep?.type === 'multiple-choice') && feedback !== 'correct'}
             className={`
               px-10 py-3 rounded-xl font-display font-bold text-lg uppercase tracking-wider transition-all
               ${feedback === 'correct' ? 'bg-duo-green text-white hover:bg-duo-green-dark' : feedback === 'incorrect' ? 'bg-duo-red text-white hover:bg-[#ea2b2b]' : 'bg-duo-green text-white hover:bg-duo-green-dark'}
